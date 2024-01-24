@@ -137,104 +137,165 @@ for i = size(dati,2) %% Select cell  /!\ it must be     size(dati,2)
     end
 
     % put the filter ECG back in the row of the cell
-    dati{i}(3,:) = ECG;
+    dati{i}(3,:) = ECG_filtered; % save the filtered ECG 
+    %%%%%%% /!\ TO DO: SALVARE LE INFO SUI PICCHI: come lo facciamo??
 
 end
 
 tt = toc;
-fprintf('Time to filter signals: %f\n', tt);
+fprintf('Time to filter ECG signals: %f\n', tt);
 dati_02_filtered = dati; % Back-up data after filtering
 %% ECG filtering
+% tic
+% for i = 1:size(dati,2) %% Select cell
+%     % Select ECG
+%     ECG = dati{i}(3,:);
+%     ECG = ECG-mean(ECG); % Subtract the mean
+% 
+%     %%%% HIGH PASS FILTER
+% 
+%     % Filter specifications
+%     order = 300; % Filter order
+%     f_c = 0.6; % Cut-off frequency in Hz
+% 
+%     % Normalized cut-off frequency (Nyquist rate)
+%     Wn = f_c/(Fs/2);
+% 
+%     % ECG = highpass(ECG,Wn,Fs);
+% 
+%     % Create the coefficients of the FIR highpass filter
+%     b = fir1(order, Wn, 'high');
+% 
+%     % Apply the filter to the signal
+%     ECG = filtfilt(b, 1, ECG);
+% 
+% 
+%     %%%% NOTCH FILTER
+%     % Filter specifications
+%     cutoff_freq = 60; % Cut-off frequency in Hz
+% 
+%     % Normalized cut-off frequency (Nyquist rate)
+%     Wn = cutoff_freq/(Fs/2);
+% 
+%     % Bandwidth for the notch filter
+%     BW = Wn/35; % common choice, rule of thumb
+% 
+%     % Create the coefficients of the FIR notch filter
+%     [b, a] = iirnotch(Wn, BW);
+% 
+%     % Apply the filter to the signal
+%     ECG = filtfilt(b, a, ECG);
+% 
+%     if(i==1)
+%         figure(100)
+%         SGN = (dati{1}(3,:))-mean(dati{1}(3,:));
+%         s = fft(SGN);
+%         N = length(SGN);
+%         freq = 0:1/(N*Ts):1/Ts-1/(N*Ts);
+%         half = length(SGN)/2;
+%         plot(freq(1:half), abs(s(1:half))/N)
+%         hold on
+%         grid on
+%         sx = fft(ECG);
+%         plot(freq(1:half), abs(sx(1:half))/N)
+% 
+%     end
+%     % put the filter ECG back in the row of the cell
+%     dati{i}(3,:) = ECG;
+% 
+% end
+% 
+% tt = toc;
+% fprintf('Time to filter signals: %f\n', tt);
+% dati_02_filtered = dati; % Back-up data after filtering
+% 
+% % PLOT
+% %%% plot first 20 signals and ECG spectrum FILTER
+% for i = 1:20
+%     figure(i); % Create a new figure for each cell
+%     for j = 1:4 % 3 signals + ECG spectrum
+%         subplot(2,2,j); % Create a subplot for each row
+%         if j<4
+%             plot(dati{i}(j,:));% Plot the row
+%             grid on
+%         else
+%             SGN = (dati{1}(3,:))-mean(dati{1}(3,:));
+%             s = fft(SGN);
+%             N = length(SGN);
+%             freq = 0:1/(N*Ts):1/Ts-1/(N*Ts);
+%             half = length(SGN)/2;
+%             plot(freq(1:half), abs(s(1:half))/N)
+%             grid on
+%         end
+%         switch j
+%             case 1
+%                 title("PPG")
+%             case 2
+%                 title("ABP")
+%             case 3
+%                 title("ECG")
+%             case 4
+%                 title("ECG spectrum")
+%         end
+%     end
+% end
+
+%% PPG and ABP filtering
+
 tic
-for i = 1:size(dati,2) %% Select cell
+for i = 1 %% Select cell  /!\ it must be     size(dati,2)
     % Select ECG
-    ECG = dati{i}(3,:);
-    ECG = ECG-mean(ECG); % Subtract the mean
+    PPG = dati{i}(1,:); % 1st row -> PPG
+    ABP = dati{i}(2,:); % 2nd row -> ABP
 
-    %%%% HIGH PASS FILTER
-            
-    % Filter specifications
-    order = 300; % Filter order
-    f_c = 0.6; % Cut-off frequency in Hz
-    
-    % Normalized cut-off frequency (Nyquist rate)
-    Wn = f_c/(Fs/2);
-
-    % ECG = highpass(ECG,Wn,Fs);
-    
-    % Create the coefficients of the FIR highpass filter
-    b = fir1(order, Wn, 'high');
-
-    % Apply the filter to the signal
-    ECG = filtfilt(b, 1, ECG);
-
-
-    %%%% NOTCH FILTER
-    % Filter specifications
-    cutoff_freq = 60; % Cut-off frequency in Hz
-    
-    % Normalized cut-off frequency (Nyquist rate)
-    Wn = cutoff_freq/(Fs/2);
-    
-    % Bandwidth for the notch filter
-    BW = Wn/35; % common choice, rule of thumb
-    
-    % Create the coefficients of the FIR notch filter
-    [b, a] = iirnotch(Wn, BW);
-    
-    % Apply the filter to the signal
-    ECG = filtfilt(b, a, ECG);
+    % FFT to remove high frequency noise
+    PPG_fft = fft(PPG);
+    ABP_fft = fft(ABP);
 
     if(i==1)
-        figure(100)
-        SGN = (dati{1}(3,:))-mean(dati{1}(3,:));
-        s = fft(SGN);
-        N = length(SGN);
+        figure(110)
+        subplot(2,1,1)
+        N = length(PPG_fft);
         freq = 0:1/(N*Ts):1/Ts-1/(N*Ts);
-        half = length(SGN)/2;
+        half = N/2;
         plot(freq(1:half), abs(s(1:half))/N)
         hold on
         grid on
-        sx = fft(ECG);
-        plot(freq(1:half), abs(sx(1:half))/N)
-
+        
+        subplot(2,1,2)
+        N = length(ABP_fft);
+        freq = 0:1/(N*Ts):1/Ts-1/(N*Ts);
+        half = N/2;
+        plot(freq(1:half), abs(s(1:half))/N)
+        hold on
+        grid on
     end
-    % put the filter ECG back in the row of the cell
-    dati{i}(3,:) = ECG;
+    
+    % Define frequency ranges
+    respiratory_effect_range = [0.15, 0.4];
+    vascular_resistance_range = [0.01, 0.15];
+    
+    % Apply bandpass filter for each range
+    PPG_respiratory = bandpass(PPG_fft, respiratory_effect_range);
+    PPG_vascular = bandpass(PPG_fft, vascular_resistance_range);
+    
+    ABP_respiratory = bandpass(ABP_fft, respiratory_effect_range);
+    ABP_wave_vascular = bandpass(ABP_fft, vascular_resistance_range);
+    
+    % Detect peaks using Daubechies 3 wavelet
+    [PPG_maxima, PPG_max_locs] = findpeaks(ppg_wave, 'MinPeakDistance', 100, 'MinPeakHeight', 0.5);
+    [ABP_maxima, ABP_max_locs] = findpeaks(abp_wave, 'MinPeakDistance', 100, 'MinPeakHeight', 0.5);
+    
+    % Display the peaks
+    disp('PPG Wave Maxima:'); disp(ppg_wave_maxima);
+    disp('ABP Wave Maxima:'); disp(abp_wave_maxima);
 
+
+    % put the filter ECG back in the row of the cell
+    dati{i}(1,:) = PPG;
+    dati{i}(2,:) = ABP;
 end
 
 tt = toc;
 fprintf('Time to filter signals: %f\n', tt);
 dati_02_filtered = dati; % Back-up data after filtering
-
-% PLOT
-%%% plot first 20 signals and ECG spectrum FILTER
-for i = 1:20
-    figure(i); % Create a new figure for each cell
-    for j = 1:4 % 3 signals + ECG spectrum
-        subplot(2,2,j); % Create a subplot for each row
-        if j<4
-            plot(dati{i}(j,:));% Plot the row
-            grid on
-        else
-            SGN = (dati{1}(3,:))-mean(dati{1}(3,:));
-            s = fft(SGN);
-            N = length(SGN);
-            freq = 0:1/(N*Ts):1/Ts-1/(N*Ts);
-            half = length(SGN)/2;
-            plot(freq(1:half), abs(s(1:half))/N)
-            grid on
-        end
-        switch j
-            case 1
-                title("PPG")
-            case 2
-                title("ABP")
-            case 3
-                title("ECG")
-            case 4
-                title("ECG spectrum")
-        end
-    end
-end
