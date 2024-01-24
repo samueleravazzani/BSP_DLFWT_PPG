@@ -127,12 +127,13 @@ for i = 1 %% Select cell  /!\ it must be     size(dati,2)
         % grid on
         % sx = fft(ECG);
         % plot(freq(1:half), abs(sx(1:half))/N)
-        
+        ECG_pantompkin_filtered = pan_tompkin_filtering(ECG,Fs,0);
+
         figure(102)
-        plot(pan_tompkin_filtering(ECG,Fs,0))
+        plot(ECG_pantompkin_filtered)
         grid on
         hold on
-        plot(ECG_peaks_indexes,ECG_peaks*max(ECG), 'ro')
+        plot(ECG_peaks_indexes,ECG_peaks*max(ECG_pantompkin_filtered), 'ro')
     end
 
     % put the filter ECG back in the row of the cell
