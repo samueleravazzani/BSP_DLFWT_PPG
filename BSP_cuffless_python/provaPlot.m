@@ -128,8 +128,10 @@ for i = 1 %% Select cell
         % sx = fft(ECG);
         % plot(freq(1:half), abs(sx(1:half))/N)
         
-
+        figure(102)
+        plot(ECG_peaks_indexes-ECG_delay,ECG_peaks)
     end
+
     % put the filter ECG back in the row of the cell
     dati{i}(3,:) = ECG;
 
