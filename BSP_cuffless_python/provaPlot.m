@@ -12,7 +12,8 @@ switch user
         path = "/";
 end
 
-
+% dati: current dataset being utilized and modified
+% dati_XX_modifc: back-up
 %% load data
 % this database consist of a cell array of matrices, each cell is one record part.
 % In each matrix each row corresponds to one signal channel: 
@@ -28,6 +29,7 @@ part3_load=load(path + "Part_3.mat")
 part4_load= load(path + "Part_4.mat")
 
 dati = [part1_load.Part_1, part2_load.Part_2, part3_load.Part_3, part4_load.Part_4];
+dati_00 = dati; % Back-up copy of the original
 Fs = 125;
 Ts = 1/Fs;
 
@@ -75,6 +77,7 @@ for j = numel(dati):-1:1 %% = prod(size(cellArray)
 end
 
 disp(counter)
+dati_01_removed = dati; % Back-up copy of signals after removing unaccepted signals
 %% plot first 20 signals and ECG spectrum removing the mean
 for i = 1:20
     figure(i); % Create a new figure for each cell
@@ -104,6 +107,37 @@ for i = 1:20
         end
     end
 end
+
+%% ECG filtering: Pan Tompkins
+tic
+for i = 1 %% Select cell
+    % Select ECG
+    ECG = dati{i}(3,:);
+    [ECG_peaks, ECG_peaks_indexes, ECG_delay] = pan_tompkin(ECG, Fs, 0);
+
+    if(i==1)
+        % figure(100)
+        % SGN = (dati{1}(3,:))-mean(dati{1}(3,:));
+        % s = fft(SGN);
+        % N = length(SGN);
+        % freq = 0:1/(N*Ts):1/Ts-1/(N*Ts);
+        % half = length(SGN)/2;
+        % plot(freq(1:half), abs(s(1:half))/N)
+        % hold on
+        % grid on
+        % sx = fft(ECG);
+        % plot(freq(1:half), abs(sx(1:half))/N)
+        
+
+    end
+    % put the filter ECG back in the row of the cell
+    dati{i}(3,:) = ECG;
+
+end
+
+tt = toc;
+fprintf('Time to filter signals: %f\n', tt);
+dati_02_filtered = dati; % Back-up data after filtering
 %% ECG filtering
 tic
 for i = 1:size(dati,2) %% Select cell
@@ -114,8 +148,8 @@ for i = 1:size(dati,2) %% Select cell
     %%%% HIGH PASS FILTER
             
     % Filter specifications
-    order = 1000; % Filter order
-    f_c = 0.5; % Cut-off frequency in Hz
+    order = 300; % Filter order
+    f_c = 0.6; % Cut-off frequency in Hz
     
     % Normalized cut-off frequency (Nyquist rate)
     Wn = f_c/(Fs/2);
@@ -161,9 +195,12 @@ for i = 1:size(dati,2) %% Select cell
     end
     % put the filter ECG back in the row of the cell
     dati{i}(3,:) = ECG;
+
 end
+
 tt = toc;
 fprintf('Time to filter signals: %f\n', tt);
+dati_02_filtered = dati; % Back-up data after filtering
 
 % PLOT
 %%% plot first 20 signals and ECG spectrum FILTER
