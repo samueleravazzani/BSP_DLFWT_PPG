@@ -129,7 +129,7 @@ for i = 1 %% Select cell  /!\ it must be     size(dati,2)
         % plot(freq(1:half), abs(sx(1:half))/N)
         
         figure(102)
-        plot(ECG)
+        plot(pan_tompkin_filtering(ECG,Fs,0))
         grid on
         hold on
         plot(ECG_peaks_indexes,ECG_peaks*max(ECG), 'ro')
