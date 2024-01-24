@@ -74,36 +74,34 @@ for j = numel(dati):-1:1 %% = prod(size(cellArray)
 end
 
 disp(counter)
-
-%%
-%% plot first signals from first part 
-
-% Assuming CellArray is your cell array
+%% plot first 20 signals and spectra removing the mean
 for i = 1:20
     figure(i); % Create a new figure for each cell
-    for j = 1:4 % Assuming each matrix has 3 rows
+    for j = 1:4 % 3 signals + ECG spectrum
         subplot(2,2,j); % Create a subplot for each row
         if j<4
-            plot(dati{i}(j,:)); % Plot the row
+            plot(dati{i}(j,:));% Plot the row
+            grid on
         else
             Ts = 1/125;
-            SGN = (dati{1}(3,:));
+            SGN = (dati{1}(3,:))-mean(dati{1}(3,:));
             s = fft(SGN);
             N = length(SGN);
             freq = 0:1/(N*Ts):1/Ts-1/(N*Ts);
             half = length(SGN)/2;
             plot(freq(1:half), abs(s(1:half))/N)
+            grid on
+        end
+        switch j
+            case 1
+                title("PPG")
+            case 2
+                title("ABP")
+            case 3
+                title("ECG")
+            case 4
+                title("ECG spectrum")
         end
     end
 end
-
-
-
-% %%
-% N = 273;
-% S = mean(data(2:2:N,:)+data(1:2:N-1,:)); % faccio la media del SGN: è lo stesso di prima
-% W = mean(data(2:2:N,:)-data(1:2:N-1,:)); % coppie: cancello la parte comune = segnale
-% SNR = std(S)/std(W)
-
-
 %%
