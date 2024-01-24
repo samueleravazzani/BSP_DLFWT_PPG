@@ -110,10 +110,10 @@ end
 
 %% ECG filtering: Pan Tompkins
 tic
-for i = 1 %% Select cell  /!\ it must be     size(dati,2)
+for i = size(dati,2) %% Select cell  /!\ it must be     size(dati,2)
     % Select ECG
     ECG = dati{i}(3,:);
-    [ECG_peaks, ECG_peaks_indexes, ECG_delay] = pan_tompkin(ECG, Fs, 0);
+    [ECG_filtered, ECG_peaks, ECG_peaks_indexes, ECG_delay] = pan_tompkin(ECG, Fs, 0);
 
     if(i==1)
         % figure(100)
@@ -127,13 +127,13 @@ for i = 1 %% Select cell  /!\ it must be     size(dati,2)
         % grid on
         % sx = fft(ECG);
         % plot(freq(1:half), abs(sx(1:half))/N)
-        ECG_pantompkin_filtered = pan_tompkin_filtering(ECG,Fs,0);
+        
 
         figure(102)
-        plot(ECG_pantompkin_filtered)
+        plot(ECG_filtered)
         grid on
         hold on
-        plot(ECG_peaks_indexes,ECG_peaks*max(ECG_pantompkin_filtered), 'ro')
+        plot(ECG_peaks_indexes,ECG_peaks*max(ECG_filtered), 'ro')
     end
 
     % put the filter ECG back in the row of the cell
