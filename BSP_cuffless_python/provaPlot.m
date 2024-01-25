@@ -157,33 +157,27 @@ tic
 for i = 1 %% Select cell  /!\ it must be     size(dati,2)
     % Select ECG
     PPG = dati{i}(1,:); % 1st row -> PPG
+    PPG_norm = PPG/max(PPG);
 
-    
-
-    % FFT
-    PPG_fft = fft(PPG);
+    deriv1 = diff(PPG)/Ts;
+    deriv1 = deriv1 /max(deriv1);
+    deriv2 = diff(deriv1)/Ts;
+    deriv2 = deriv2/max(deriv2);
 
     if(i==1)
-        [C,L] = wavedec(PPG,3,'db3');
-        fd = wden (f, ' rigrsure', 's', 'gin', level, wname);
-        plotDetCoefHelper(PPG, C,L);
-    
-        figure;
-        subplot(2,1, 1)
-        plot(PPG) ;axis tight; grid on; title ('Noisy Signal');
-        subplot(2,1, 2)
-        plot(fd); axis tight; grid on;
-
-        
-
-        figure(110)
-        subplot(2,1,1)
-        N = length(PPG_fft);
-        freq = 0:1/(N*Ts):1/Ts-1/(N*Ts);
-        half = N/2;
-        plot(freq(1:half), abs(s(1:half))/N)
+        figure(111)
+        subplot(3,1,1)
+        plot(PPG_norm)
         hold on
-        grid on        
+        yline(0)
+        subplot(3,1,2)
+        plot(deriv1)
+        hold on
+        yline(0)
+        subplot(3,1,3)
+        plot(deriv2)
+        hold on
+        yline(0)
     end
     
     % Define frequency ranges
@@ -193,12 +187,7 @@ for i = 1 %% Select cell  /!\ it must be     size(dati,2)
     PPG_vascular = bandpass(PPG_fft, vascular_resistance_range);
     
     % Detect peaks using Daubechies 3 wavelet
-    [PPG_maxima, PPG_max_locs] = findpeaks(ppg_wave, 'MinPeakDistance', 100, 'MinPeakHeight', 0.5);
-    
-    % Display the peaks
-    disp('PPG Wave Maxima:'); disp(ppg_wave_maxima);
-    disp('ABP Wave Maxima:'); disp(abp_wave_maxima);
-
+    [PPG_maxima, PPG_max_locs] = findpeaks(PPG, 'MinPeakDistance', 100, 'MinPeakHeight', 0.5);
 
     % Save filtered signal
 
