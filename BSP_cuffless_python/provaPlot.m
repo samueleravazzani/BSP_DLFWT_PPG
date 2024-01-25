@@ -156,6 +156,14 @@ dati_02_filtered = dati; % Back-up data after filtering
 tic
 for i = 1 %% Select cell  /!\ it must be     size(dati,2)
     % Select ECG
+    
+    
+    % Define frequency ranges
+    vascular_resistance_range = [0.01, 0.15]; % LF
+    
+    % Apply bandpass filter for vascular range
+    PPG_vascular = bandpass(PPG_fft, vascular_resistance_range);
+    
     PPG = dati{i}(1,:); % 1st row -> PPG
     PPG_norm = PPG/max(PPG);
 
@@ -179,16 +187,6 @@ for i = 1 %% Select cell  /!\ it must be     size(dati,2)
         hold on
         yline(0)
     end
-    
-    % Define frequency ranges
-    vascular_resistance_range = [0.01, 0.15]; % LF
-    
-    % Apply bandpass filter for vascular range
-    PPG_vascular = bandpass(PPG_fft, vascular_resistance_range);
-    
-    % Detect peaks using Daubechies 3 wavelet
-    [PPG_maxima, PPG_max_locs] = findpeaks(PPG, 'MinPeakDistance', 100, 'MinPeakHeight', 0.5);
-
     % Save filtered signal
 
     % Save peaks
